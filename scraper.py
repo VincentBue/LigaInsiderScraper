@@ -124,6 +124,7 @@ def merge(players_stored, players_retrieved):
     """
     Merge stored players with players retrieved from retrieve function.
     """
+    print("New")
     for p_new in players_retrieved:
         if p_new in players_stored:
             # Update the player
