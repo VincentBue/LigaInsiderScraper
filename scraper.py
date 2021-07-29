@@ -78,7 +78,7 @@ def retrieve_players():
     date_string = get_date_string()
     links = ['https://www.ligainsider.de/stats/kickbase/marktwerte/tag/gewinner/',
                 'https://www.ligainsider.de/stats/kickbase/marktwerte/tag/verlierer/']
-    players = []
+    players = {}
     for link in links:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'lxml')
@@ -105,7 +105,7 @@ def retrieve_players():
                 current_market_value=current_market_value,
                 market_value_history=[(date_string,current_market_value)]
             )
-            players.append(current_player)
+            players[name] = current_player
     return players
 
 def update_player(p_to_be_updated, p_new):
@@ -127,11 +127,9 @@ def merge(players_stored, players_retrieved):
     for p_new in players_retrieved:
         if p_new in players_stored:
             # Update the player
-            idx = players_stored.index(p_new)
-            # Update player at idx using values of p_new
-            update_player(p_to_be_updated=players_stored[idx], p_new=p_new)
+            update_player(p_to_be_updated=players_stored[p_new], p_new=players_retrieved[p_new])
         else:
-            players_stored.append(p_new)
+            players_stored[p_new] = players_retrieved[p_new]
     return players_stored
 
 def update_data():
@@ -150,7 +148,7 @@ def update_data():
 
     print("Retrieving players...")
     players_retrieved = retrieve_players()
-    players_stored = []
+    players_stored = {}
     if os.path.exists(DATABASE_PATH):
         print("Loading database...")
         with open(DATABASE_PATH, "rb") as f:
